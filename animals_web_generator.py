@@ -1,37 +1,12 @@
 """Script to generate html file with information about animals"""
 
-import os
-import requests
-from dotenv import load_dotenv
+import data_fetcher
 
 
 HTML_TEMPLATE = "animals_template.html"
 REPLACE_STR = "__REPLACE_ANIMALS_INFO__"
 ANIMALS_HTML_PATH = "animals.html"
 TABS_NUM = 3  # number of tabs to add for nicer formatting
-
-# API configuration
-load_dotenv()
-API_URL = "https://api.api-ninjas.com/v1/animals"
-API_KEY = os.getenv("API_KEY")
-HEADERS = {"X-Api-Key": API_KEY}
-
-
-def load_data(animal_name: str):
-    """
-    Load information about animals using API.
-
-    Args:
-        animal_name: Search string passed to API.
-
-    Returns:
-        Data about animals.
-    """
-
-    res = requests.get(f"{API_URL}?name={animal_name}", headers=HEADERS)
-    if res.status_code == 200:
-        return res.json()
-    return None
 
 
 def serialize_animal(animal: dict) -> str:
@@ -84,7 +59,7 @@ def generate_html(animal_name: str) -> str:
     Returns:
         Generated html with information about the animals.
     """
-    animals = load_data(animal_name)
+    animals = data_fetcher.fetch_data(animal_name)
     if animals:
         animals_info = ""
         for animal in animals:
