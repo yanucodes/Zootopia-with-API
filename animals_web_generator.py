@@ -119,10 +119,21 @@ def save_html(animal_name: str):
         try:
             with open(ANIMALS_HTML_PATH, "w", encoding="utf-8") as f:
                 f.write(animals_html)
+            print("Website was successfully generated to the file "
+                  f"{ANIMALS_HTML_PATH}.")
         except OSError as e:
             print(f"Failed to save generated html to '{ANIMALS_HTML_PATH}:' "
                   f"{e}")
 
 
+def main():
+    """
+    Ask user to enter the name of an animal and generate html with
+    information about animals with this name.
+    """
+    animal_name = input("Enter a name of an animal: ")
+    save_html(animal_name)
+
+
 if __name__ == "__main__":
-    save_html("fox")
+    main()
