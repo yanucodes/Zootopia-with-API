@@ -85,10 +85,15 @@ def generate_html(animal_name: str) -> str:
         Generated html with information about the animals.
     """
     animals = load_data(animal_name)
-    animals_info = ""
-    for animal in animals:
-        animals_info += serialize_animal(animal)
-        animals_info += "\n"
+    if animals:
+        animals_info = ""
+        for animal in animals:
+            animals_info += serialize_animal(animal)
+            animals_info += "\n"
+    else:
+        animals_info = ("<div class=\"cards__item\"><p class=\"not__found\">"
+                        f"The animal \"{animal_name}\" doesn't exist.</p>"
+                        f"</div>")
 
     try:
         with open(HTML_TEMPLATE, "r", encoding="utf-8") as f:
