@@ -1,43 +1,42 @@
-"""Script to generate html file with information about animals in the
-database"""
+"""Script to generate html file with information about animals"""
 
-import json
+import os
+import requests
+from dotenv import load_dotenv
 
 
-ANIMALS_JSONFILE = "animals_data.json"
 HTML_TEMPLATE = "animals_template.html"
 REPLACE_STR = "__REPLACE_ANIMALS_INFO__"
 ANIMALS_HTML_PATH = "animals.html"
 TABS_NUM = 3  # number of tabs to add for nicer formatting
 
+# API configuration
+load_dotenv()
+API_URL = "https://api.api-ninjas.com/v1/animals"
+API_KEY = os.getenv("API_KEY")
+HEADERS = {"X-Api-Key": API_KEY}
 
-def load_data(file_path: str):
+
+def load_data(animal_name: str):
     """
-    Load data from a JSON file.
+    Load information about animals using API.
 
     Args:
-        file_path: Path to the JSON file.
+        animal_name: Search string passed to API.
 
     Returns:
-        Data loaded from the JSON file.
+        Data about animals.
     """
-    try:
-        with open(file_path, "r", encoding="utf-8") as handle:
-            return json.load(handle)
-    except FileNotFoundError:
-        print(f"{file_path} does not exist.")
-    except PermissionError:
-        print(f"Cannot read file {file_path}. Permission denied.")
-    except UnicodeDecodeError:
-        print(f"Cannot read file {file_path}. Encoding should be UTF-8.")
-    except OSError as e:
-        print(f"Failed to load {file_path}: {e}")
+
+    res = requests.get(f"{API_URL}?name={animal_name}", headers=HEADERS)
+    if res.status_code == 200:
+        return res.json()
     return None
 
 
 def serialize_animal(animal: dict) -> str:
     """
-    Export available information about an animal (name, diet, location and
+    Convert available information about an animal (name, diet, location and
     type) to string.
 
     Args:
@@ -75,14 +74,17 @@ def serialize_animal(animal: dict) -> str:
     return animal_info
 
 
-def generate_html() -> str:
+def generate_html(animal_name: str) -> str:
     """
-    Load html template and add information about the animals into the template.
+    Load information about the animals and insert into html template.
+
+    Args:
+        animal_name: Name of the animal to look up.
 
     Returns:
         Generated html with information about the animals.
     """
-    animals = load_data(ANIMALS_JSONFILE)
+    animals = load_data(animal_name)
     animals_info = ""
     for animal in animals:
         animals_info += serialize_animal(animal)
@@ -105,11 +107,14 @@ def generate_html() -> str:
     return None
 
 
-def save_html():
+def save_html(animal_name: str):
     """
     Save generated html with information about animals to file.
+
+    Args:
+        animal_name: Name of the animal to look up.
     """
-    animals_html = generate_html()
+    animals_html = generate_html(animal_name)
     if animals_html:
         try:
             with open(ANIMALS_HTML_PATH, "w", encoding="utf-8") as f:
@@ -120,4 +125,4 @@ def save_html():
 
 
 if __name__ == "__main__":
-    save_html()
+    save_html("fox")
